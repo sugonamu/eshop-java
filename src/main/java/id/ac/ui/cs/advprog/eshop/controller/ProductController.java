@@ -12,24 +12,36 @@ import java.util.List;
 @Controller
 @RequestMapping("/product")
 public class ProductController {
+
     @Autowired
     private ProductService service;
 
     @GetMapping("/create")
-    public String createProductPage(Model model){
+    public String createProductPage(Model model) {
         Product product = new Product();
         model.addAttribute("product", product);
-        return "CreateProduct";
+        return "createProduct";
     }
+
     @PostMapping("/create")
-    public String createProductPost(@ModelAttribute Product product, Model model){
+    public String createProductPost(@ModelAttribute Product product, Model model) {
         service.create(product);
-        return "redirect:list";
+        return "redirect:/product/list";
     }
+
     @GetMapping("/list")
-    public String productListPage(Model model){
-        List<Product> products = service.findAll();
-        model.addAttribute("products", products);
-        return  "ProductList";
+    public String productListPage(Model model) {
+        List<Product> allProducts = service.findAll();
+        model.addAttribute("products", allProducts);
+        return "productList";
     }
+
+
+    //using a delete method to delete the product
+    @GetMapping("/delete/{productId}")
+    public String deleteProduct(@PathVariable String productId) {
+        service.delete(productId);
+        return "redirect:/product/list";
+    }
+
 }
