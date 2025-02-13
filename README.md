@@ -5,3 +5,5 @@ Some obstacles I faced were forgetting to add Thymeleaf as a dependency which le
 To improve the code further, features such as input validation to prevent invalid data submission and adding a CSRF protection for a better security would be a great addition for the code.
 
 Assignment 2 Reflection 2:
+
+There were some new things for me when merging, e.g VIM text editor where our messages goes, this made me confused and I thought there was issues thus leading to a bad comment when pushing.
