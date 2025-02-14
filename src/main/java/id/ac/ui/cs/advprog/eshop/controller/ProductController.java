@@ -36,6 +36,21 @@ public class ProductController {
         return "productList";
     }
 
+    //using GET method to retrieve the product by using product ID
+    @GetMapping("/edit/{productId}")
+    public String editProductPage(@PathVariable String productId, Model model) {
+        Product product = service.getById(productId);
+        model.addAttribute("product", product);
+        return "editProduct";
+    }
+    //using POST method to submit the edited product to the form
+    @PostMapping("/edit")
+    public String editProductPost(@ModelAttribute Product product) {
+        service.update(product);
+
+        return "redirect:/product/list";
+    }
+
 
     //using a delete method to delete the product
     @GetMapping("/delete/{productId}")
