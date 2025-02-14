@@ -6,4 +6,7 @@ To improve the code further, features such as input validation to prevent invali
 
 Assignment 2 Reflection 2:
 
+
+Writing unit tests is essential for ensuring code reliability, but having 100% code coverage does not necessarily mean the code is free of bugs or logical errors. Code coverage helps identify untested parts of the codebase, but it does not guarantee correctness in all scenarios. When adding new functional test suites, duplicating setup procedures and instance variables can reduce code quality by increasing redundancy and maintenance complexity.
+A better approach is to refactor shared setup logic into a base test class or use JUnit’s @BeforeEach method to improve reusability and maintainability.
 There were some new things for me when merging, e.g VIM text editor where our messages goes, this made me confused and I thought there was issues thus leading to a bad comment when pushing.
