@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class ProductServiceImplTest {
+class ProductServiceImplTest {
 
     @Autowired
     private ProductServiceImpl productService;
