@@ -30,8 +30,8 @@ val webdrivermanagerVersion = "5.6.3"
 
 sonar {
     properties {
-        property("sonar.projectKey", "skibidiyo_eshop")
-        property("sonar.organization", "skibidiyo")
+        property("sonar.projectKey", "eshop")
+        property("sonar.organization", "sugonamu")
         property("sonar.host.url", "https://sonarcloud.io")
     }
 }
