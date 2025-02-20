@@ -2,88 +2,129 @@ package id.ac.ui.cs.advprog.eshop.controller;
 
 import id.ac.ui.cs.advprog.eshop.model.Product;
 import id.ac.ui.cs.advprog.eshop.service.ProductService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import java.util.Collections;
+import java.util.UUID;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-class ProductControllerTest {
+@WebMvcTest(ProductController.class)
+public class ProductControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Mock
+    @MockBean
     private ProductService productService;
 
-    @InjectMocks
-    private ProductController productController;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(productController).build();
-    }
-
-    // ✅ FIXED: Test for create product page
     @Test
-    void testCreateProductPage() throws Exception {
+    public void testCreateProductPage() throws Exception {
         mockMvc.perform(get("/product/create"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("createProduct"))
-                .andExpect(model().attributeExists("product")); // Check if 'product' exists in model
+                .andExpect(view().name("CreateProduct"))
+                .andExpect(model().attributeExists("product"));
     }
 
-    // ✅ FIXED: Test for product list page
     @Test
-    void testProductListPage() throws Exception {
-        Product product1 = new Product();
-        product1.setProductId("1");
-        product1.setProductName("Product 1");
-        product1.setProductQuantity(5);
+    public void testCreateProductPost() throws Exception {
+        Product product = new Product();
+        product.setProductId(UUID.randomUUID().toString());
 
-        Product product2 = new Product();
-        product2.setProductId("2");
-        product2.setProductName("Product 2");
-        product2.setProductQuantity(10);
+        mockMvc.perform(post("/product/create")
+                        .flashAttr("product", product))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("list"));
 
-        List<Product> products = Arrays.asList(product1, product2);
+        Mockito.verify(productService).create(product);
+    }
 
-        when(productService.findAll()).thenReturn(products);
+    @Test
+    public void testProductListPage() throws Exception {
+        Mockito.when(productService.findAll()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/product/list"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("productList"))
-                .andExpect(model().attributeExists("products")) // Ensure 'products' is in model
-                .andExpect(model().attribute("products", products));
-
-        verify(productService, times(1)).findAll();
+                .andExpect(view().name("ProductList"))
+                .andExpect(model().attributeExists("products"));
     }
 
-    // ✅ FIXED: Test for edit product page
     @Test
-    void testEditProductPage() throws Exception {
+    public void testEditProductPage() throws Exception {
         Product product = new Product();
         product.setProductId("1");
-        product.setProductName("Test Product");
-        product.setProductQuantity(10);
-
-        when(productService.getById("1")).thenReturn(product);
+        Mockito.when(productService.findAll()).thenReturn(Collections.singletonList(product));
 
         mockMvc.perform(get("/product/edit/1"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("editProduct"))
-                .andExpect(model().attributeExists("product")) // Ensure 'product' is in model
-                .andExpect(model().attribute("product", product));
-
-        verify(productService, times(1)).getById("1");
+                .andExpect(view().name("EditProduct"))
+                .andExpect(model().attributeExists("product"));
     }
+
+    @Test
+    public void testEditProductPost() throws Exception {
+        Product product = new Product();
+        product.setProductId("1");
+
+        mockMvc.perform(post("/product/edit")
+                        .flashAttr("product", product))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/product/list"));
+
+        Mockito.verify(productService).update(product);
+    }
+
+    @Test
+    public void testDeleteProduct() throws Exception {
+        String productId = "1";
+
+        mockMvc.perform(get("/product/delete/" + productId))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/product/list"));
+
+        Mockito.verify(productService).delete(productId);
+    }
+    @Test
+    public void testEditProductPage_ProductFound() throws Exception {
+        Product product = new Product();
+        product.setProductId("1");
+
+        // Mocking service to return a list with the matching product
+        Mockito.when(productService.findAll()).thenReturn(Collections.singletonList(product));
+
+        mockMvc.perform(get("/product/edit/1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("EditProduct"))
+                .andExpect(model().attributeExists("product"))
+                .andExpect(model().attribute("product", product)); // Ensure the correct product is set
+    }
+
+    @Test
+    public void testEditProductPage_ProductNotFoundInNonEmptyList() throws Exception {
+        Product product = new Product();
+        product.setProductId("2"); // Different ID, so it won't match
+
+        // Mocking service to return a list with a product that DOES NOT match
+        Mockito.when(productService.findAll()).thenReturn(Collections.singletonList(product));
+
+        mockMvc.perform(get("/product/edit/1"))
+                .andExpect(status().is3xxRedirection())  // Expect a redirect
+                .andExpect(redirectedUrl("/product/list")); // Redirects because no matching product
+    }
+
+    @Test
+    public void testEditProductPage_ProductListIsEmpty() throws Exception {
+        // Mocking service to return an empty list
+        Mockito.when(productService.findAll()).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/product/edit/1"))
+                .andExpect(status().is3xxRedirection())  // Expect a redirect
+                .andExpect(redirectedUrl("/product/list")); // Redirects because no products exist
+    }
+
 }
