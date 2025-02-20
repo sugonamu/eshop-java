@@ -106,4 +106,17 @@ class ProductControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/product/list"));
     }
+
+    @Test
+    void testEditProductPage_ProductNotFoundInNonEmptyList() throws Exception {
+        Product product = new Product();
+        product.setProductId("2"); // Different ID, so it won't match
+
+        // Mocking service to return a list with a product that DOES NOT match
+        Mockito.when(productService.findAll()).thenReturn(Collections.singletonList(product));
+
+        mockMvc.perform(get("/product/edit/1"))
+                .andExpect(status().is3xxRedirection())  // Expect a redirect
+                .andExpect(redirectedUrl("/product/list")); // Redirects because no matching product
+    }
 }
