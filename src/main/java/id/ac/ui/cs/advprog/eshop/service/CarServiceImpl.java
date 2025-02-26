@@ -5,6 +5,8 @@ import id.ac.ui.cs.advprog.eshop.repository.CarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 @Service
 public class CarServiceImpl implements CarService {
@@ -20,7 +22,11 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public List<Car> findAll() {
-        return carRepository.findAll();
+        Iterator<Car> iterator = carRepository.findAll(); // Get the Iterator<Car>
+        List<Car> carList = new ArrayList<>();
+
+        iterator.forEachRemaining(carList::add); // Convert Iterator to List
+        return carList;
     }
 
     @Override
