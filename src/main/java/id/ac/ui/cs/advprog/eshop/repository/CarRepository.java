@@ -18,8 +18,8 @@ public class CarRepository {
         carData.add(car);
         return car;
     }
-    public Iterator<Car> findAll(){
-        return carData.iterator();
+    public List<Car> findAll(){
+        return new ArrayList<>(carData);
     }
     public Car findById(String id){
         for (Car car : carData) {

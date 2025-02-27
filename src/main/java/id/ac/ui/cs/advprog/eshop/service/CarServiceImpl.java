@@ -22,11 +22,7 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public List<Car> findAll() {
-        Iterator<Car> iterator = carRepository.findAll(); // Get the Iterator<Car>
-        List<Car> carList = new ArrayList<>();
-
-        iterator.forEachRemaining(carList::add); // Convert Iterator to List
-        return carList;
+        return carRepository.findAll();
     }
 
     @Override
