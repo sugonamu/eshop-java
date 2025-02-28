@@ -57,7 +57,7 @@ Writing unit tests is essential for ensuring code reliability, but achieving 100
 
 ---
 
-# **Advantages and Disadvantages of SOLID Principles**
+# **Advantages of SOLID Principles and Disadvantages of Not Applying SOLID Principles**
 
 ## **Advantages of Applying SOLID Principles**
 
@@ -83,27 +83,75 @@ Writing unit tests is essential for ensuring code reliability, but achieving 100
 
 ---
 
-## **Disadvantages of Applying SOLID Principles**
+## **Disadvantages of Not Applying SOLID Principles with Examples**
 
-### **1. Increased Code Complexity**
-- Applying SOLID principles often requires breaking down code into multiple classes, interfaces, and layers, increasing complexity.
-- Example: Instead of a single `UserService`, additional components such as `UserRepository`, `UserValidator`, `UserManager`, and `UserController` may be needed.
+### **1. Tightly Coupled Code (SRP Violation)**
+- If multiple responsibilities are combined in a single class, modifying one feature may introduce unintended issues in other parts of the system.
+- Example: In `ProductController.java`, product-related logic is tightly coupled within the controller rather than being separated into service layers.
+  ```java
+  @Autowired
+  private ProductService service;
+  
+  @PostMapping("/create")
+  public String createProductPost(@ModelAttribute Product product, Model model) {
+      product.setProductId(UUID.randomUUID().toString());
+      service.create(product);
+      return "redirect:list";
+  }
+  ```
+   - **Issue:** Business logic (setting product ID) should be in `ProductService` rather than in the controller.
 
-### **2. Over-Engineering in Small Projects**
-- Strict adherence to SOLID can introduce unnecessary abstractions in small projects.
-- Example: A simple CRUD application may not require complex dependency injection or multiple service layers.
+### **2. Difficult to Extend (OCP Violation)**
+- Without OCP, adding new functionalities requires modifying existing code, leading to a higher risk of breaking existing functionality.
+- Example: `CarRepository` directly updates car objects rather than allowing extension through an abstracted service.
+  ```java
+  public Car update(String id, Car updatedCar) {
+      for (int i = 0 ; i < carData.size(); i++) {
+          Car car = carData.get(i);
+          if (car.getCarId().equals(id)) {
+              car.setCarName(updatedCar.getCarName());
+              car.setCarColor(updatedCar.getCarColor());
+              car.setCarQuantity(updatedCar.getCarQuantity());
+              return car;
+          }
+      }
+      return null;
+  }
+  ```
+   - **Issue:** Instead of modifying this method when new fields are added, an interface or extension strategy should be used.
 
-### **3. More Boilerplate Code**
-- Implementing interfaces, dependency injection, and multiple classes results in increased lines of code.
-- Example: Instead of calling a function directly, multiple layers of classes must be instantiated.
+### **3. Unreliable Subclass Behavior (LSP Violation)**
+- If a subclass modifies behavior unexpectedly, it can cause unintended side effects.
+- Example: `CarController` extends `ProductController`, even though a car is a specific type of product, causing potential inconsistencies.
+  ```java
+  class CarController extends ProductController {
+      @Autowired
+      private CarServiceImpl carService;
+  }
+  ```
+   - **Issue:** This inheritance structure implies that `CarController` should behave like `ProductController`, which may not be true in all cases.
 
-### **4. Potential Performance Overhead**
-- Using dependency injection frameworks and additional abstraction layers may introduce runtime overhead.
-- Example: Instead of calling a method directly, the request may go through multiple layers (`Controller → Service → Repository`).
+### **4. Classes Implement Unnecessary Methods (ISP Violation)**
+- Without ISP, classes are forced to implement methods they do not need.
+- Example: `CarService` interface has methods that are irrelevant to all implementations.
+  ```java
+  public interface CarService {
+      public Car create(Car car);
+      public List<Car> findAll();
+      Car findById(String carId);
+      public void update(String carId, Car car);
+      public void deleteCarById(String carId);
+  }
+  ```
+   - **Issue:** If there were electric and fuel-based cars, methods like `chargeBattery()` and `refuel()` should belong to separate interfaces rather than a shared `CarService`.
 
-### **5. Requires More Knowledge and Experience**
-- Understanding and properly applying SOLID principles requires a strong grasp of object-oriented design.
-- Example: Misapplying the **Liskov Substitution Principle (LSP)** can lead to unexpected behaviors rather than preventing them.
+### **5. Hard to Test and Modify Dependencies (DIP Violation)**
+- Without DIP, high-level modules depend on low-level implementations, making testing harder.
+- Example: `CarController` depends directly on `CarServiceImpl`, rather than an abstraction.
+  ```java
+  @Autowired
+  private CarServiceImpl carService;
+  ```
+   - **Issue:** Instead of directly depending on `CarServiceImpl`, it should depend on `CarService` interface to allow flexibility in testing and future modifications.
 
 ---
-
