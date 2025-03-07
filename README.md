@@ -57,7 +57,6 @@ Writing unit tests is essential for ensuring code reliability, but achieving 100
 
 ---
 
-# **Advantages of SOLID Principles and Disadvantages of Not Applying SOLID Principles**
 
 ## **Advantages of Applying SOLID Principles**
 
@@ -155,3 +154,55 @@ Writing unit tests is essential for ensuring code reliability, but achieving 100
    - **Issue:** Instead of directly depending on `CarServiceImpl`, it should depend on `CarService` interface to allow flexibility in testing and future modifications.
 
 ---
+
+# Assignment 4 Reflection 5
+
+## Evaluating the TDD Flow
+
+Following Percival (2017)'s self-reflective questions on testing, we assess whether the current TDD flow has been useful:
+
+- **Did the tests guide the implementation?**  
+  The test cases for `Order`, `OrderRepository`, and `OrderServiceImpl` effectively defined expected behaviors and guided the implementation of the `OrderService` and repository logic. However, some tests may have been written after implementation rather than strictly following a test-first approach.
+
+- **Did writing tests first help in understanding requirements?**  
+  The test cases identified edge cases such as invalid statuses (`MEOW`), handling empty product lists, and enforcing proper state transitions. This helped clarify requirements early on.
+
+- **Did the tests help refactor safely?**  
+  The presence of well-structured unit tests ensured that refactoring could be done confidently without introducing regression issues. Dependency injection and mocking (`Mockito`) in `OrderServiceImplTest` improved test isolation.
+
+- **Did the tests improve the quality and maintainability of the code?**  
+  The test coverage included essential CRUD operations, validation checks, and error handling, leading to more robust and maintainable code. However, additional test cases covering concurrency scenarios and performance optimizations could further improve maintainability.
+
+### Improvements for Future Testing
+
+To improve the effectiveness of TDD:
+- **Stricter TDD Adherence**: Future development should ensure that tests are always written before implementation.
+- **Edge Case Consideration**: Additional test cases should cover scenarios such as concurrent order creation and database rollback failures.
+- **Mocking & Isolation**: While `OrderServiceImplTest` already uses `Mockito`, repository-level tests could further benefit from mock databases or an in-memory DB setup.
+
+## Evaluating F.I.R.S.T. Principles
+
+The unit tests are assessed based on the F.I.R.S.T. principles:
+
+1. **Fast**
+    - Tests execute efficiently, but some repository tests could be optimized further by using lightweight in-memory databases instead of direct repository instances.
+
+2. **Independent**
+    - Most tests are well-isolated, with proper usage of `@BeforeEach`. The use of `Mockito` in service tests ensures independence from repository implementations.
+
+3. **Repeatable**
+    - The tests are consistent in different environments, but reliance on hardcoded IDs and timestamps may lead to inconsistencies in some cases.
+
+4. **Self-validating**
+    - Assertions (`assertEquals`, `assertThrows`, etc.) ensure that test results are clear and do not require manual interpretation.
+
+5. **Timely**
+    - Some tests appear to be written after the implementation, rather than before. This could be improved by following a strict TDD workflow.
+
+### Next Steps for Improved Testing
+
+- **Use randomized or dynamic test data**: Hardcoded IDs and timestamps should be dynamically generated to improve test robustness.
+- **Improve test isolation for repository tests**: Use in-memory databases or test containers to ensure repeatability.
+- **Expand test coverage**: Include integration tests to check how different components interact in real-world scenarios.
+- **Enhance performance testing**: Ensure tests remain fast even as the codebase grows.
+
